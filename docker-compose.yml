@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb
+    container_name: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: keycloak
+    networks:
+      - keycloak-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    environment:
+      KEYCLOAK_ADMIN: keycloak
+      KEYCLOAK_ADMIN_PASSWORD: keycloak
+    command: start-dev
+    ports:
+      - "8090:8080"
+    networks:
+      - keycloak-network
+
+  oauth2-proxy:
+    image: bitnami/oauth2-proxy:latest
+    container_name: oauth2-proxy
+    environment:
+      OAUTH2_PROXY_PROVIDER: keycloak
+      OAUTH2_PROXY_CLIENT_ID: 'oauth2-proxy'
+      OAUTH2_PROXY_CLIENT_SECRET: '534cf91e-7deb-44db-94e4-e987380af802'
+      OAUTH2_PROXY_SSL_INSECURE_SKIP_VERIFY: 'true'
+      OAUTH2_PROXY_COOKIE_SECRET: 'QKgr59Jfgfxw5gTmokq2GQ=='
+      OAUTH2_PROXY_COOKIE_SECURE: 'false'
+      OAUTH2_PROXY_EMAIL_DOMAINS: '*'
+      OAUTH2_PROXY_LOGIN_URL: 'http://keycloak/realms/master/protocol/openid-connect/auth'
+      OAUTH2_PROXY_REDEEM_URL: 'http://keycloak/realms/master/protocol/openid-connect/token'
+      OAUTH2_PROXY_VALIDATE_URL: 'http://keycloak/realms/master/protocol/openid-connect/userinfo'
+      OAUTH2_PROXY_KEYCLOAK_GROUP: '/admin'
+    ports:
+      - "4180:4180"
+    networks:
+      - keycloak-network
+
+networks:
+  keycloak-network:
+    driver: bridge
