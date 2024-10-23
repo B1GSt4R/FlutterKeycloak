@@ -16,6 +16,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final host = '192.168.137.2';
+
   @override
   void initState() {
     super.initState();
@@ -40,19 +42,22 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> login() async {
-    final client = await createClient();
-    var token = client.credentials.accessToken;
-    var res = await client.get(Uri.parse('https://192.168.137.2:7255/WeatherForecast'), headers: {'Authorization': 'Bearer $token'});
-    var statuscode = res.statusCode;
-    var data = res.body;
-    var test = true;
+    try {
+      final client = await createClient();
+      var token = client.credentials.accessToken;
+      var res = await client.get(Uri.parse('https://$host:7255/WeatherForecast'), headers: {'Authorization': 'Bearer $token'});
+      var statuscode = res.statusCode;
+      var data = res.body;
+    } catch (ex) {
+      print(ex);
+    }
   }
 
   /// Either load an OAuth2 client from saved credentials or authenticate a new
   /// one.
   Future<oauth2.Client> createClient() async {
-    final authorizationEndpoint = Uri.parse('http://192.168.137.2:8090/realms/master/protocol/openid-connect/auth');
-    final tokenEndpoint = Uri.parse('http://192.168.137.2:8090/realms/master/protocol/openid-connect/token');
+    final authorizationEndpoint = Uri.parse('http://$host:8090/realms/master/protocol/openid-connect/auth');
+    final tokenEndpoint = Uri.parse('http://$host:8090/realms/master/protocol/openid-connect/token');
 
     // The authorization server will issue each client a separate client
     // identifier and secret, which allows the server to tell which client
@@ -70,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // will redirect the resource owner here once they've authorized the
     // client. The redirection will include the authorization code in the
     // query parameters.
-    final redirectUrl = Uri.parse('http://192.168.137.2:8091/oauth2/callback');
+    final redirectUrl = Uri.parse('http://$host:8091/oauth2/callback');
 
     var grant = oauth2.AuthorizationCodeGrant(
       identifier,
