@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:oauth2_test/config/global_config.dart';
 import 'package:oauth2_test/models/person/person_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import 'package:http/http.dart' as http;
 
 part 'person_provider.g.dart';
 
@@ -13,9 +18,11 @@ class Person extends _$Person {
   }
 
   Future<List<PersonModel>> getAsync() async {
-    list = List.generate(5, (index) {
-      return PersonModel(id: index + 1, firstName: 'Vorname $index', lastName: 'Nachname $index', age: index + 19);
-    }, growable: true);
+    // list = List.generate(5, (index) {
+    //   return PersonModel(id: index + 1, firstName: 'Vorname $index', lastName: 'Nachname $index', age: index + 19);
+    // }, growable: true);
+    var response = await http.get(Uri.parse("https://192.168.137.12:8090/person"), headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+    // list = response.body;
     return list;
   }
 

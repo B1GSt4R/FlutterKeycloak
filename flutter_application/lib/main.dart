@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oauth2_test/config/router_config.dart';
 
-void main() {
+Future<void> main() async {
   runApp(const ProviderScope(child: MainApp()));
 }
 

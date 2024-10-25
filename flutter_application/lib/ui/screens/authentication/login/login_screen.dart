@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:oauth2_test/config/global_config.dart';
+import 'package:oauth2_test/providers/person_provider.dart';
 import 'package:oauth2_test/ui/shared_widgets/layout_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:openid_client/openid_client_io.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -15,21 +17,26 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   void onLogin() async {
-    // context.goNamed('dashboard');
     try {
-      FlutterAppAuth appAuth = FlutterAppAuth();
-      final tokenResponse = await appAuth.authorizeAndExchangeCode(
-        AuthorizationTokenRequest(
-          clientId,
-          redirectUrl,
-          issuer: '$scheme$authHost/auth/realms/$realm',
-          scopes: ['openid', 'profile'],
-          allowInsecureConnections: true,
-        ),
-      );
-      print(tokenResponse);
-    } on FlutterAppAuthUserCancelledException catch (e) {
-      print(e);
+      var issuer = await Issuer.discover(Uri.parse('$scheme$authHost/auth/realms/$realm'));
+      client = Client(issuer, clientId, clientSecret: clientSecret);
+
+      urlLauncher(String uri) async {
+        if (!await launchUrl(
+          Uri.parse(uri),
+        )) {
+          throw Exception('Could not launch $uri');
+        }
+      }
+
+      var authenticator = Authenticator(client, scopes: scopes, urlLancher: urlLauncher);
+      var c = await authenticator.authorize();
+      closeInAppWebView();
+      userInfo = await c.getUserInfo();
+      final t = await c.getTokenResponse(true);
+      token = t.accessToken ?? '';
+      context.goNamed('dashboard');
+      var tmp = ref.read(personProvider.notifier).getAsync();
     } catch (e) {
       print(e);
     }
