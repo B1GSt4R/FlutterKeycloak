@@ -18,13 +18,12 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   void onLogin() async {
     try {
-      var issuer = await Issuer.discover(Uri.parse('$scheme$authHost/auth/realms/$realm'));
+      String url = '$scheme$authHost/auth/realms/$realm';
+      var issuer = await Issuer.discover(Uri.parse(url));
       client = Client(issuer, clientId, clientSecret: clientSecret);
 
       urlLauncher(String uri) async {
-        if (!await launchUrl(
-          Uri.parse(uri),
-        )) {
+        if (!await launchUrl(Uri.parse(uri), mode: LaunchMode.inAppWebView)) {
           throw Exception('Could not launch $uri');
         }
       }

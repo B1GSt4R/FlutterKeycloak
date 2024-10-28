@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:oauth2_test/config/global_config.dart';
@@ -22,7 +23,17 @@ class Person extends _$Person {
     //   return PersonModel(id: index + 1, firstName: 'Vorname $index', lastName: 'Nachname $index', age: index + 19);
     // }, growable: true);
     var response = await http.get(Uri.parse("https://192.168.137.12:8090/person"), headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
-    // list = response.body;
+    if (response.statusCode == 200) {
+      // JSON-String in eine Dart-Liste konvertieren
+      List<dynamic> jsonData = jsonDecode(response.body);
+
+      // Liste von `Item`-Objekten erstellen
+      List<PersonModel> items = jsonData.map((item) => PersonModel.fromJson(item)).toList();
+
+      list = items;
+    } else {
+      throw Exception('Failed to load items');
+    }
     return list;
   }
 

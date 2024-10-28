@@ -1,6 +1,7 @@
 
 using Keycloak.AuthServices.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 
@@ -58,6 +59,19 @@ namespace restapi
         options.IncludeXmlComments (xmlPath);
       });
       builder.Services.AddAuthentication (JwtBearerDefaults.AuthenticationScheme);
+      //.AddJwtBearer (options =>
+      //{
+      //  options.Authority = "http://192.168.137.12:8080/auth/realms/DeLaKom";
+      //  options.Audience = "delakom";
+      //  options.RequireHttpsMetadata = false;
+      //  options.TokenValidationParameters = new TokenValidationParameters
+      //  {
+      //    ValidateIssuer = false,
+      //    ValidateAudience = false,
+      //    ValidIssuer = "http://192.168.137.12:8080/uth/realms/DeLaKom",
+      //    ValidAudience = "delakom",
+      //  };
+      //});
       builder.Services.AddKeycloakWebApiAuthentication (builder.Configuration);
       builder.Services.AddAuthorization ();
       //builder.Services.AddAuthorization (options =>
